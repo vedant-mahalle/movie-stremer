@@ -5,14 +5,14 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { AuthModal } from "@/components/auth-modal"
+// import { AuthModal } from "@/components/auth-modal"
 import { Search, Menu, X, Play } from "lucide-react"
 import {
   Sheet,
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet"
-import { getMagnetLink } from "@/lib/torrent-stream/getlink"
+// import { getMagnetLink } from "@/lib/torrent-stream/getlink.mjs"
 import { toast } from "sonner"
 
 interface HeaderProps {}
@@ -37,26 +37,8 @@ export function Header({}: HeaderProps) {
 
     setIsSearching(true)
     try {
-      const response = await fetch('/api/magnet', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ movieName: searchQuery.trim() }),
-      });
-
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to search movie');
-      }
-
-      if (data.magnetLink) {
-        toast.success("Found movie! Starting stream...");
-        console.log('Magnet Link:', data.magnetLink);
-      } else {
-        toast.error("No results found");
-      }
+      // Redirect to search page with the query
+      window.location.href = `/search?movie=${encodeURIComponent(searchQuery.trim())}`;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to search movie';
       toast.error(errorMessage);
@@ -100,9 +82,6 @@ export function Header({}: HeaderProps) {
           <Link href="/tv-shows" className="text-sm font-medium hover:text-primary transition-colors">
             TV Shows
           </Link>
-          <Link href="/my-list" className="text-sm font-medium hover:text-primary transition-colors">
-            My List
-          </Link>
         </nav>
 
         {/* Right Side Actions */}
@@ -139,20 +118,13 @@ export function Header({}: HeaderProps) {
                 onClick={() => setIsSearchOpen(true)} 
                 className="hidden sm:flex"
               >
-                <Search className="h-4 w-4" />
+                <Search className="h-6 w-6" />
               </Button>
             )}
           </div>
 
           <ThemeToggle />
 
-          {/* Auth Buttons */}
-          <div className="hidden sm:flex items-center space-x-2">
-            <Button variant="ghost" onClick={() => openAuthModal("signin")}>
-              Sign In
-            </Button>
-            <Button onClick={() => openAuthModal("signup")}>Sign Up</Button>
-          </div>
 
           {/* Mobile Menu */}
           <Sheet>
@@ -177,28 +149,12 @@ export function Header({}: HeaderProps) {
                     My List
                   </Link>
                 </div>
-                <div className="border-t pt-4">
-                  <div className="flex flex-col gap-2">
-                    <Button variant="ghost" onClick={() => openAuthModal("signin")} className="justify-start">
-                      Sign In
-                    </Button>
-                    <Button onClick={() => openAuthModal("signup")} className="justify-start">
-                      Sign Up
-                    </Button>
-                  </div>
-                </div>
               </div>
             </SheetContent>
           </Sheet>
         </div>
       </div>
 
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        mode={authMode}
-        onModeChange={setAuthMode}
-      />
     </header>
   )
 }

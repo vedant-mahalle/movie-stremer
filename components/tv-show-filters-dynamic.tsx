@@ -2,43 +2,47 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Checkbox } from "@/components/ui/checkbox"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import { Slider } from "@/components/ui/slider"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
-import { X } from "lucide-react"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
-const GENRES = [
+const TV_GENRES = [
   "Action",
   "Adventure",
   "Animation",
-  "Biography",
   "Comedy",
   "Crime",
   "Documentary",
   "Drama",
   "Family",
   "Fantasy",
-  "Horror",
   "Mystery",
-  "Romance",
+  "Reality",
   "Sci-Fi",
   "Thriller",
-  "War",
 ]
 
 const YEARS = Array.from({ length: 50 }, (_, i) => 
   (new Date().getFullYear() - i).toString()
 )
 
-interface MovieFiltersProps {
+interface TVShowFiltersDynamicProps {
   onGenreChange?: (genre: string) => void
   onYearChange?: (year: string) => void
 }
 
-export function MovieFilters({ onGenreChange, onYearChange }: MovieFiltersProps) {
+export function TVShowFiltersDynamic({ onGenreChange, onYearChange }: TVShowFiltersDynamicProps) {
   const [selectedGenre, setSelectedGenre] = useState<string>("all")
   const [selectedYear, setSelectedYear] = useState<string>("all")
 
@@ -66,7 +70,7 @@ export function MovieFilters({ onGenreChange, onYearChange }: MovieFiltersProps)
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Genres</SelectItem>
-              {GENRES.map((genre) => (
+              {TV_GENRES.map((genre) => (
                 <SelectItem key={genre} value={genre.toLowerCase()}>
                   {genre}
                 </SelectItem>
@@ -107,4 +111,4 @@ export function MovieFilters({ onGenreChange, onYearChange }: MovieFiltersProps)
       </CardContent>
     </Card>
   )
-}
+} 

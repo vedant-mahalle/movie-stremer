@@ -89,10 +89,6 @@ export function HeroSection() {
               <Play className="mr-2 h-5 w-5" />
               Play Now
             </Button>
-            <Button size="lg" variant="outline" className="border-white/20 text-black hover:bg-white/10">
-              <Plus className="mr-2 h-5 w-5" />
-              My List
-            </Button>
             <Button size="lg" variant="ghost" className="text-white hover:bg-white/10 hidden md:flex"> {/* Hide on smaller screens */}
               <Info className="mr-2 h-5 w-5" />
               More Info
