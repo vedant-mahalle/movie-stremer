@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { piratebay } from 'piratebay-scraper';
 
-const OMDB_API_KEY = 'b0588703'; // Using the same API key from your code
+const OMDB_API_KEY = process.env.OMDB_API_KEY; // Using the same API key from your code
 
 async function getMovieInfo(title: string) {
   try {
