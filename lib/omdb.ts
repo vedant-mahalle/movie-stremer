@@ -1,4 +1,4 @@
-const OMDB_API_KEY = 'b0588703';
+const OMDB_API_KEY = process.env.NEXT_PUBLIC_OMDB_API_KEY;
 
 export interface MovieDetails {
   Title: string;
