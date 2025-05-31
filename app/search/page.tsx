@@ -136,7 +136,6 @@ export default function SearchPage() {
                   <SearchResultCard
                     key={index}
                     {...result}
-                    onDownload={() => handleDownload(result.magnet)}
                   />
                 ))}
               </div>

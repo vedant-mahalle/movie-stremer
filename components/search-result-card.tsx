@@ -2,10 +2,11 @@
 
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Download, Film, ChevronLeft, ChevronRight, Star } from "lucide-react"
+import { Download, Film, ChevronLeft, ChevronRight, Star, Play } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { useRef } from "react"
 import Image from "next/image"
+import { useRouter } from 'next/navigation'
 
 interface MovieInfo {
   title: string
@@ -24,7 +25,6 @@ interface SearchResultCardProps {
   uploadDate: string
   magnet: string
   movieInfo: MovieInfo | null
-  onDownload: (magnet: string) => void
 }
 
 export function SearchResultCard({
@@ -35,12 +35,18 @@ export function SearchResultCard({
   uploadDate,
   magnet,
   movieInfo,
-  onDownload
 }: SearchResultCardProps) {
+  const router = useRouter();
+
+  const handleStreamClick = () => {
+    console.log(magnet)
+    // router.push(`/stream?magnet=${encodeURIComponent(magnet)}`);
+  };
+
   return (
     <Card className="overflow-hidden w-64 flex-shrink-0 bg-card text-card-foreground shadow-lg">
       <CardContent className="p-3 flex flex-col h-full">
-        <div className="relative flex items-center justify-center h-80 bg-muted rounded-md mb-3 overflow-hidden">
+        <div onClick={handleStreamClick} className="relative flex items-center justify-center h-80 bg-muted rounded-md mb-3 overflow-hidden cursor-pointer">
           {movieInfo?.poster && movieInfo.poster !== 'N/A' ? (
             <Image
               src={movieInfo.poster}
@@ -102,16 +108,6 @@ export function SearchResultCard({
           </div>
         </div>
       </CardContent>
-
-      <CardFooter className="p-3 pt-0">
-        <Button
-          className="w-full flex items-center justify-center"
-          onClick={() => onDownload(magnet)}
-        >
-          <Download className="h-4 w-4 mr-2" />
-          Download
-        </Button>
-      </CardFooter>
     </Card>
   )
 }
@@ -127,10 +123,9 @@ interface SearchResultsGridProps {
     magnet: string
     movieInfo: MovieInfo | null
   }[]
-  onDownload: (magnet: string) => void
 }
 
-export function SearchResultsGrid({ title, results, onDownload }: SearchResultsGridProps) {
+export function SearchResultsGrid({ title, results }: SearchResultsGridProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
 
   const scroll = (direction: "left" | "right") => {
@@ -170,7 +165,6 @@ export function SearchResultsGrid({ title, results, onDownload }: SearchResultsG
           <SearchResultCard
             key={index}
             {...result}
-            onDownload={onDownload}
           />
         ))}
       </div>

@@ -16,6 +16,7 @@ interface Movie {
   Genre: string
   Poster: string
   imdbID: string
+  magnet?: string
 }
 
 interface MovieCardProps {
