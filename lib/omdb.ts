@@ -25,7 +25,7 @@ export interface MovieDetails {
 export async function getMovieById(imdbId: string): Promise<MovieDetails | null> {
   try {
     const response = await fetch(
-      `http://www.omdbapi.com/?apikey=${OMDB_API_KEY}&i=${imdbId}&plot=full`
+      `/api/omdb?id=${encodeURIComponent(imdbId)}`
     );
     const data = await response.json();
     return data.Response === 'True' ? data : null;
@@ -35,11 +35,13 @@ export async function getMovieById(imdbId: string): Promise<MovieDetails | null>
   }
 }
 
-export async function searchMovies(query: string): Promise<MovieDetails[]> {
+export async function searchMovies(query: string, type?: "movie" | "series"): Promise<MovieDetails[]> {
   try {
-    const response = await fetch(
-      `http://www.omdbapi.com/?apikey=${OMDB_API_KEY}&s=${encodeURIComponent(query)}`
-    );
+    let url = `/api/omdb?q=${encodeURIComponent(query)}`;
+    if (type) {
+      url += `&type=${type}`;
+    }
+    const response = await fetch(url);
     const data = await response.json();
     return data.Response === 'True' ? data.Search : [];
   } catch (error) {

@@ -43,7 +43,7 @@ export function TVShowGridDynamic({ genre, year, searchQuery = "series" }: TVSho
       const allResults: MovieDetails[] = []
       
       for (const searchQuery of searchQueries) {
-        const results = await searchMovies(searchQuery)
+        const results = await searchMovies(searchQuery, "series")
         // Filter for unique TV series only
         const seriesResults = results.filter(show => 
           show.Type === 'series' && 
