@@ -116,7 +116,6 @@ export function Header({}: HeaderProps) {
                 variant="ghost" 
                 size="icon" 
                 onClick={() => setIsSearchOpen(true)} 
-                className="hidden sm:flex"
               >
                 <Search className="h-6 w-6" />
               </Button>
