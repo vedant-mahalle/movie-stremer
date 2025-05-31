@@ -1,6 +1,5 @@
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { ProfileContent } from "@/components/profile-content"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -27,8 +26,6 @@ export default function ProfilePage() {
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
-
-          <ProfileContent />
         </div>
       </main>
       <Footer />
