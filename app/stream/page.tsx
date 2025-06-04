@@ -14,13 +14,13 @@
 // }
 
 import { Suspense } from "react";
-import StreamVideoPlayer from "../../components/StreamVideoPlayer";
+import StreamClient from "./StreamClient";
 
 export default function StreamPage() {
   return (
     <main className="flex flex-col items-center justify-center p-4">
       <Suspense fallback={<div>Loading video...</div>}>
-        <StreamVideoPlayer />
+        <StreamClient />
       </Suspense>
     </main>
   );
