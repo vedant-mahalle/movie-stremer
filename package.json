@@ -73,6 +73,7 @@
     "@types/webtorrent": "^0.110.0",
     "eslint": "^9.28.0",
     "eslint-config-next": "15.3.3",
+    "node-loader": "^2.1.0",
     "postcss": "^8",
     "tailwindcss": "^3.4.17",
     "typescript": "^5"
