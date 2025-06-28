@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Streaming Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .magnet-input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .status.info { background: #d1ecf1; color: #0c5460; }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎬 Magnet Stream Testing</h1>
+    
+    <button class="btn" id="stopStreamBtn" style="display:none;" onclick="stopStream()">🛑 Stop Current Stream</button>
+    <div id="stopStreamResult"></div>
+    
+    <div class="test-section">
+        <h2>Test Your Streaming Setup</h2>
+        <p>This page helps you test if your magnet streaming application is working correctly.</p>
+        
+        <h3>1. Server Status</h3>
+        <button class="btn" onclick="checkServer()">Check Server Health</button>
+        <div id="serverStatus"></div>
+        
+        <h3>2. Test with Sample Magnet Link</h3>
+        <p>Try this sample magnet link (Ubuntu ISO - legal to test):</p>
+        <input type="text" class="magnet-input" id="sampleMagnet" readonly value="magnet:?xt=urn:btih:3b245504cf5f11bbdbe1201cea6a6bf45aee1bc0&dn=ubuntu-22.04.3-desktop-amd64.iso&tr=http%3A%2F%2Ftorrent.ubuntu.com%3A6969%2Fannounce">
+        <button class="btn" onclick="testSampleMagnet()">Test Sample Magnet</button>
+        <div id="sampleTestResult"></div>
+        
+        <h3>3. Test Your Own Magnet Link</h3>
+        <input type="text" class="magnet-input" id="customMagnet" placeholder="Paste your magnet link here...">
+        <button class="btn" onclick="testCustomMagnet()">Test Custom Magnet</button>
+        <div id="customTestResult"></div>
+        
+        <h3>4. Debug Information</h3>
+        <div id="debugInfo"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000/api';
+        
+        let currentStreamId = null;
+        
+        async function checkServer() {
+            const statusDiv = document.getElementById('serverStatus');
+            statusDiv.innerHTML = '<div class="status info">Checking server...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    statusDiv.innerHTML = `
+                        <div class="status success">
+                            ✅ Server is running!<br>
+                            Port: ${data.port}<br>
+                            Active Streams: ${data.activeStreams}<br>
+                            Max Streams: ${data.maxStreams}<br>
+                            Upload Enabled: ${data.uploadEnabled}
+                        </div>
+                    `;
+                } else {
+                    statusDiv.innerHTML = `<div class="status error">❌ Server error: ${data.error}</div>`;
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="status error">❌ Cannot connect to server: ${error.message}</div>`;
+            }
+        }
+        
+        async function testSampleMagnet() {
+            const resultDiv = document.getElementById('sampleTestResult');
+            const magnet = document.getElementById('sampleMagnet').value;
+            
+            resultDiv.innerHTML = '<div class="status info">Testing sample magnet...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/stream`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ magnet })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="status success">
+                            ✅ Stream started successfully!<br>
+                            Stream ID: ${data.streamId}<br>
+                            Status: ${data.status}
+                        </div>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                    
+                    currentStreamId = data.streamId;
+                    document.getElementById('stopStreamBtn').style.display = 'inline-block';
+                    document.getElementById('stopStreamResult').innerHTML = '';
+                    
+                    // Monitor the stream
+                    monitorStream(data.streamId);
+                } else {
+                    resultDiv.innerHTML = `<div class="status error">❌ Failed to start stream: ${data.error}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="status error">❌ Error: ${error.message}</div>`;
+            }
+        }
+        
+        async function testCustomMagnet() {
+            const resultDiv = document.getElementById('customTestResult');
+            const magnet = document.getElementById('customMagnet').value.trim();
+            
+            if (!magnet) {
+                resultDiv.innerHTML = '<div class="status error">❌ Please enter a magnet link</div>';
+                return;
+            }
+            
+            if (!magnet.startsWith('magnet:?')) {
+                resultDiv.innerHTML = '<div class="status error">❌ Please enter a valid magnet link</div>';
+                return;
+            }
+            
+            resultDiv.innerHTML = '<div class="status info">Testing custom magnet...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/stream`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ magnet })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="status success">
+                            ✅ Stream started successfully!<br>
+                            Stream ID: ${data.streamId}<br>
+                            Status: ${data.status}
+                        </div>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                    
+                    currentStreamId = data.streamId;
+                    document.getElementById('stopStreamBtn').style.display = 'inline-block';
+                    document.getElementById('stopStreamResult').innerHTML = '';
+                    
+                    // Monitor the stream
+                    monitorStream(data.streamId);
+                } else {
+                    resultDiv.innerHTML = `<div class="status error">❌ Failed to start stream: ${data.error}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="status error">❌ Error: ${error.message}</div>`;
+            }
+        }
+        
+        async function monitorStream(streamId) {
+            const debugDiv = document.getElementById('debugInfo');
+            let updateCount = 0;
+            
+            const interval = setInterval(async () => {
+                try {
+                    const response = await fetch(`${API_BASE}/stream/${streamId}/status`);
+                    const data = await response.json();
+                    
+                    updateCount++;
+                    
+                    debugDiv.innerHTML = `
+                        <h4>Stream Monitoring (Update #${updateCount})</h4>
+                        <div class="status info">
+                            Status: ${data.status}<br>
+                            Progress: ${data.progress}%<br>
+                            Download Speed: ${(data.downloadSpeed / 1024 / 1024).toFixed(2)} MB/s<br>
+                            Peers: ${data.peers}<br>
+                            Files: ${data.files.length}
+                        </div>
+                        <h5>Video Files:</h5>
+                        <pre>${JSON.stringify(data.files.filter(f => /\.(mp4|avi|mkv|mov|wmv|flv|webm|m4v|3gp)$/i.test(f.name)), null, 2)}</pre>
+                    `;
+                    
+                    // Stop monitoring after 30 seconds or if stream is done
+                    if (updateCount >= 30 || data.status === 'completed') {
+                        clearInterval(interval);
+                        debugDiv.innerHTML += '<div class="status info">Monitoring stopped</div>';
+                        document.getElementById('stopStreamBtn').style.display = 'none';
+                    }
+                } catch (error) {
+                    debugDiv.innerHTML = `<div class="status error">Monitoring error: ${error.message}</div>`;
+                    clearInterval(interval);
+                }
+            }, 2000);
+        }
+        
+        async function stopStream() {
+            const btn = document.getElementById('stopStreamBtn');
+            const resultDiv = document.getElementById('stopStreamResult');
+            if (!currentStreamId) {
+                resultDiv.innerHTML = '<div class="status error">No active stream to stop.</div>';
+                return;
+            }
+            btn.disabled = true;
+            resultDiv.innerHTML = '<div class="status info">Stopping stream...</div>';
+            try {
+                const response = await fetch(`${API_BASE}/stream/${currentStreamId}`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    resultDiv.innerHTML = `<div class="status success">✅ ${data.message}</div>`;
+                    currentStreamId = null;
+                    btn.style.display = 'none';
+                } else {
+                    resultDiv.innerHTML = `<div class="status error">❌ ${data.error}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="status error">❌ Error: ${error.message}</div>`;
+            }
+            btn.disabled = false;
+        }
+        
+        // Auto-check server on page load
+        window.onload = function() {
+            checkServer();
+        };
+    </script>
+</body>
+</html> 

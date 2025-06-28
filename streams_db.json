@@ -1,0 +1,42 @@
+{
+  "cee7882879dd1178c30a75347149f9cf": {
+    "infoHash": "879db7f95a78e353be9dbe77e0956a81da3043dc",
+    "name": "Mission Impossible - Dead Reckoning Part One (2023) [2160p] [WEBRip] [x265] [10b",
+    "files": [
+      {
+        "name": "Mission Impossible - Dead Reckoning Part One (2023) [2160p] [WEBRip] [x265] [10b",
+        "size": 1073741824,
+        "progress": 0.1,
+        "streamable": true
+      }
+    ],
+    "progress": 0.1,
+    "downloadSpeed": 2.5,
+    "uploaded": 0,
+    "downloaded": 104857600,
+    "peers": 5,
+    "timeRemaining": 3600,
+    "path": "/home/vedant/movie-stremer2/streams/cee7882879dd1178c30a75347149f9cf"
+  },
+  "97218981f9be8948fe8657402f0bf276": {
+    "infoHash": "1234567890abcdef1234567890abcdef12345678",
+    "magnet": "magnet:?xt=urn:btih:1234567890abcdef1234567890abcdef12345678&dn=test.mp4",
+    "name": "test.mp4",
+    "files": [
+      {
+        "name": "test.mp4",
+        "size": 1073741824,
+        "progress": 0.1,
+        "streamable": true,
+        "filePath": "/home/vedant/movie-stremer2/streams/97218981f9be8948fe8657402f0bf276/test.mp4"
+      }
+    ],
+    "progress": 0.1,
+    "downloadSpeed": 2.5,
+    "uploaded": 0,
+    "downloaded": 104857600,
+    "peers": 5,
+    "timeRemaining": 3600,
+    "path": "/home/vedant/movie-stremer2/streams/97218981f9be8948fe8657402f0bf276"
+  }
+}
