@@ -78,6 +78,11 @@ export function MovieGridDynamic({ genre, year, searchQuery = "popular" }: Movie
                       </div>
                     )}
                   </div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    {movie.Released && movie.Released !== 'N/A' && <div>Release: {movie.Released}</div>}
+                    {movie.Genre && movie.Genre !== 'N/A' && <div>Genre: {movie.Genre}</div>}
+                    {movie.Plot && movie.Plot !== 'N/A' && <div className="line-clamp-2">{movie.Plot}</div>}
+                  </div>
                 </div>
               </CardContent>
             </Card>

@@ -27,7 +27,7 @@ export default function MoviePage({ params }: MoviePageProps) {
       <Header />
       <main>
         <MovieDetails movieId={params.id} />
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-9">
           <RelatedMovies 
             genre={movie?.Genre?.split(', ')[0]} 
             year={movie?.Year}
