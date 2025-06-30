@@ -149,10 +149,10 @@ export function HeroSection() {
           <div className="flex items-center justify-center md:justify-start space-x-4">
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
-                <Button size="lg" className="bg-white text-black hover:bg-gray-200">
-                  <Play className="mr-2 h-5 w-5" />
-                  Play Now
-                </Button>
+            <Button size="lg" className="bg-white text-black hover:bg-gray-200">
+              <Play className="mr-2 h-5 w-5" />
+              Play Now
+            </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>

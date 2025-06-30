@@ -258,14 +258,16 @@ export default function StreamPage() {
                 <div className="mt-4">
                   <h4 className="text-sm font-medium mb-2">Files:</h4>
                   <div className="space-y-1">
-                    {streamStatus.files.map((file, index) => (
-                      <div key={index} className="flex items-center justify-between text-xs">
-                        <span className="truncate">{file.name}</span>
-                        <span className="text-muted-foreground">
-                          {isVideoFile(file.name) && file.streamable ? '✅' : '⏳'}
-                        </span>
-                      </div>
-                    ))}
+                    {streamStatus.files
+                      .filter((file: { name: string }) => file.name.toLowerCase().endsWith('.mp4') || file.name.toLowerCase().endsWith('.webm'))
+                      .map((file: any) => (
+                        <div key={file.name} className="flex items-center justify-between text-xs">
+                          <span className="truncate">{file.name}</span>
+                          <span className="text-muted-foreground">
+                            {file.streamable ? '✅' : '⏳'}
+                          </span>
+                        </div>
+                      ))}
                   </div>
                 </div>
               )}

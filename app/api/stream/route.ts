@@ -93,12 +93,15 @@ function startTorrent(streamId: string, magnet: string) {
     client.add(magnet, { path }, (torrent) => {
       streamInfo.torrent = torrent;
       streamInfo.status = 'downloading';
-      streamInfo.files = torrent.files.map((file: any) => ({
-        name: file.name,
-        length: file.length,
-        path: file.path,
-        streamable: false,
-      }));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      streamInfo.files = (torrent.files as any[])
+        .filter((file: any) => file.name.toLowerCase().endsWith('.mp4') || file.name.toLowerCase().endsWith('.webm'))
+        .map((file: any) => ({
+          name: file.name,
+          length: file.length,
+          path: file.path,
+          streamable: false,
+        }));
 
       console.log(`Torrent added: ${torrent.name}`);
 

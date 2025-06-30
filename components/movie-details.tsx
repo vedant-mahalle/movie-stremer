@@ -197,7 +197,7 @@ export function MovieDetails({ movieId }: MovieDetailsProps) {
             <div className="flex gap-4 pt-4">
               <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button size="lg">Watch Now</Button>
+              <Button size="lg">Watch Now</Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>

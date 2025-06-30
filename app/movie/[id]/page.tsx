@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { MovieDetails } from "@/components/movie-details"
@@ -12,21 +12,22 @@ interface MoviePageProps {
 }
 
 export default function MoviePage({ params }: MoviePageProps) {
+  const { id } = React.use(params);
   const [movie, setMovie] = useState<MovieInfo | null>(null)
 
   useEffect(() => {
     async function fetchMovie() {
-      const data = await getMovieById(params.id)
+      const data = await getMovieById(id)
       setMovie(data)
     }
     fetchMovie()
-  }, [params.id])
+  }, [id])
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <main>
-        <MovieDetails movieId={params.id} />
+        <MovieDetails movieId={id} />
         <div className="container mx-auto px-4 py-9">
           <RelatedMovies 
             genre={movie?.Genre?.split(', ')[0]} 
