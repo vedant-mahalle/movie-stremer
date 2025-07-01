@@ -1,4 +1,7 @@
 const OMDB_API_KEY = process.env.NEXT_PUBLIC_OMDB_API_KEY;
+if (!OMDB_API_KEY) {
+  throw new Error('OMDB_API_KEY is not set in environment variables');
+}
 
 export interface MovieDetails {
   Title: string;

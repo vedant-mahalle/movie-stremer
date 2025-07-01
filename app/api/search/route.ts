@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
 import { piratebay } from 'piratebay-scraper';
 
-const OMDB_API_KEY = process.env.OMDB_API_KEY; // Using the same API key from your code
+const OMDB_API_KEY = process.env.OMDB_API_KEY;
+if (!OMDB_API_KEY) {
+  throw new Error('OMDB_API_KEY is not set in environment variables');
+}
 
 async function getMovieInfo(title: string) {
   try {

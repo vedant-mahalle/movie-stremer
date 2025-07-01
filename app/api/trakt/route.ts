@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 
-const TRAKT_CLIENT_ID = process.env.TRAKT_CLIENT_ID || '9cfc92d7614bd541753b4cad1b2956eaa046f27f3278fc5bb5d5834c5857cefe';
+const TRAKT_CLIENT_ID = process.env.TRAKT_CLIENT_ID;
+if (!TRAKT_CLIENT_ID) {
+  throw new Error('TRAKT_CLIENT_ID is not set in environment variables');
+}
 const BASE_URL = 'https://api.trakt.tv';
 
 export async function GET(request: Request) {

@@ -1,6 +1,9 @@
 import readline from 'readline';
 
-const TMDB_API_KEY = 'b0588703'; // Replace with your TMDB API key
+const TMDB_API_KEY = process.env.TMDB_API_KEY;
+if (!TMDB_API_KEY) {
+  throw new Error('TMDB_API_KEY is not set in environment variables');
+}
 const TMDB_API_BASE = 'https://api.themoviedb.org/3';
 const TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
 
