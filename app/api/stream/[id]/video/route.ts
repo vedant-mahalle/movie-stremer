@@ -48,7 +48,7 @@ export async function GET(
       // Prefer .mp4 or .webm files
       videoFile = streamInfo.files.find((file: any) =>
         isVideoFile(file.name) && file.streamable &&
-        (file.name.toLowerCase().endsWith('.mp4') || file.name.toLowerCase().endsWith('.webm'))
+        (file.name.toLowerCase().endsWith('.mp4') || file.name.toLowerCase().endsWith('.mkv'))
       );
       // Fallback to any streamable video file
       if (!videoFile) {
@@ -64,7 +64,7 @@ export async function GET(
     }
 
     // Only allow browser-compatible formats
-    if (!videoFile.name.toLowerCase().endsWith('.mp4') && !videoFile.name.toLowerCase().endsWith('.webm')) {
+    if (!videoFile.name.toLowerCase().endsWith('.mp4') && !videoFile.name.toLowerCase().endsWith('.mkv')) {
       return NextResponse.json(
         { error: 'This video format is not supported by your browser. Please try a different torrent or download the file to play locally.' },
         { status: 415 }

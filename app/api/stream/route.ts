@@ -95,7 +95,7 @@ function startTorrent(streamId: string, magnet: string) {
       streamInfo.status = 'downloading';
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       streamInfo.files = (torrent.files as any[])
-        .filter((file: any) => file.name.toLowerCase().endsWith('.mp4') || file.name.toLowerCase().endsWith('.webm'))
+        .filter((file: any) => file.name.toLowerCase().endsWith('.mp4') || file.name.toLowerCase().endsWith('.mkv'))
         .map((file: any) => ({
           name: file.name,
           length: file.length,
