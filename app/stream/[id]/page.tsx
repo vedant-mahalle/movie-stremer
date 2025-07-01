@@ -43,6 +43,8 @@ export default function StreamPage() {
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [duration, setDuration] = useState<number>(0);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<string | null>(null);
+  const [backLoading, setBackLoading] = useState(false);
 
   // Poll stream status
   useEffect(() => {
@@ -61,15 +63,12 @@ export default function StreamPage() {
         setLoading(false);
 
         // If stream is ready and we don't have a video URL yet
-        if (data.status === 'ready' && !videoUrl) {
+        if (data.status === 'ready' && !selectedFile) {
           const videoFile = data.files.find((file: any) => 
             isVideoFile(file.name) && file.streamable
           );
-          
           if (videoFile) {
-            const url = `/api/stream/${streamId}/video?file=${encodeURIComponent(videoFile.name)}`;
-            setVideoUrl(url);
-            console.log("✅ Video URL created:", url);
+            setSelectedFile(videoFile.name);
           }
         }
 
@@ -78,7 +77,6 @@ export default function StreamPage() {
           setError(data.error || 'Stream error occurred');
           setLoading(false);
         }
-
       } catch (err) {
         console.error('Error polling stream status:', err);
         setError(err instanceof Error ? err.message : 'Failed to get stream status');
@@ -93,7 +91,14 @@ export default function StreamPage() {
     const interval = setInterval(pollStatus, 2000);
 
     return () => clearInterval(interval);
-  }, [streamId, videoUrl]);
+  }, [streamId, selectedFile]);
+
+  // Update videoUrl when selectedFile changes
+  useEffect(() => {
+    if (selectedFile) {
+      setVideoUrl(`/api/stream/${streamId}/video?file=${encodeURIComponent(selectedFile)}`);
+    }
+  }, [selectedFile, streamId]);
 
   // Set up video element
   useEffect(() => {
@@ -157,6 +162,19 @@ export default function StreamPage() {
     setStreamStatus(null);
   };
 
+  // Handler for Back to Search
+  const handleBackToSearch = async () => {
+    setBackLoading(true);
+    try {
+      await fetch(`/api/stream/${streamId}`, { method: 'DELETE' });
+    } catch (e) {
+      // Optionally show a toast or log error
+    } finally {
+      setBackLoading(false);
+      router.back();
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -211,13 +229,34 @@ export default function StreamPage() {
       <Header />
       <main className="container mx-auto px-4 py-8">
         <div className="mb-4">
-          <Button variant="outline" onClick={() => router.back()}>
+          <Button variant="outline" onClick={handleBackToSearch} disabled={backLoading}>
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Search
+            {backLoading ? 'Stopping...' : 'Back to Search'}
           </Button>
         </div>
         
         <h1 className="text-2xl font-bold mb-4">{title}</h1>
+        
+        {/* File/Episode Selector */}
+        {streamStatus && streamStatus.files.length > 1 && (
+          <div className="mb-4">
+            <label htmlFor="file-select" className="block text-sm font-medium mb-1">
+              {`Select ${streamStatus.files.length > 1 ? 'Episode' : 'File'}:`}
+            </label>
+            <select
+              id="file-select"
+              className="w-full p-2 border rounded"
+              value={selectedFile || ''}
+              onChange={e => setSelectedFile(e.target.value)}
+            >
+              {streamStatus.files.filter((file: any) => isVideoFile(file.name) && file.streamable).map((file: any, idx: number) => (
+                <option key={file.name} value={file.name}>
+                  {`Episode ${idx + 1}: ${file.name}`}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         
         <div className="space-y-4">
           {/* Video Player */}
@@ -227,6 +266,7 @@ export default function StreamPage() {
               className="w-full h-auto max-h-[70vh]"
               controls
               onTimeUpdate={handleTimeUpdate}
+              key={videoUrl || undefined} // force reload on file change
             />
           </div>
 

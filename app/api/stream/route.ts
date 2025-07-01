@@ -114,15 +114,18 @@ function startTorrent(streamId: string, magnet: string) {
           streamInfo.peers = torrent.numPeers;
 
           // Check if video files are streamable
-          torrent.files.forEach((file: any, index: number) => {
+          (torrent.files as any[]).forEach((file: any) => {
             if (isVideoFile(file.name) && file.downloaded > 0) {
-              streamInfo.files[index].streamable = true;
+              const fileEntry = streamInfo.files.find((f: any) => f.name === file.name);
+              if (fileEntry) {
+                fileEntry.streamable = true;
+              }
             }
           });
 
           // Mark as ready if we have streamable video files
           const hasStreamableVideo = streamInfo.files.some(
-            (file) => isVideoFile(file.name) && file.streamable
+            (file:any) => isVideoFile(file.name) && file.streamable
           );
 
           if (hasStreamableVideo && streamInfo.status === 'downloading') {
@@ -141,7 +144,7 @@ function startTorrent(streamId: string, magnet: string) {
       torrent.on('error', (error) => {
         if (streamInfo) {
           streamInfo.status = 'error';
-          streamInfo.error = error.message;
+          streamInfo.error = error instanceof Error ? error.message : String(error);
         }
       });
     });
@@ -149,14 +152,14 @@ function startTorrent(streamId: string, magnet: string) {
     client.on('error', (error) => {
       if (streamInfo) {
         streamInfo.status = 'error';
-        streamInfo.error = error.message;
+        streamInfo.error = error instanceof Error ? error.message : String(error);
       }
     });
 
   } catch (error) {
     if (streamInfo) {
       streamInfo.status = 'error';
-      streamInfo.error = error instanceof Error ? error.message : 'Unknown error';
+      streamInfo.error = error instanceof Error ? error.message : String(error);
     }
   }
 }
