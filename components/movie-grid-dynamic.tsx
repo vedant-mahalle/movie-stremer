@@ -109,37 +109,37 @@ export function MovieGridDynamic({ genre, year, searchQuery = "popular" }: Movie
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
         {movies.map((movie) => (
           <Card key={movie.imdbID} className="hover:scale-105 transition-transform">
-            <CardContent className="p-2">
-              {movie.Poster && movie.Poster !== 'N/A' ? (
-                <div className="relative aspect-[2/3]">
-                  <Image
-                    src={movie.Poster}
-                    alt={movie.Title}
-                    fill
-                    className="object-cover rounded-sm"
-                  />
-                </div>
-              ) : (
-                <div className="aspect-[2/3] bg-muted flex items-center justify-center rounded-sm">
-                  No Poster
-                </div>
-              )}
-              <div className="pt-2">
-                <h3 className="font-medium line-clamp-1">{movie.Title}</h3>
-                <div className="flex items-center justify-between text-sm text-muted-foreground">
-                  <span>{movie.Year}</span>
-                  {movie.imdbRating && movie.imdbRating !== 'N/A' && (
-                    <div className="flex items-center gap-1">
-                      <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                      <span>{movie.imdbRating}</span>
-                    </div>
-                  )}
-                </div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  {movie.Released && movie.Released !== 'N/A' && <div>Release: {movie.Released}</div>}
-                  {movie.Genre && movie.Genre !== 'N/A' && <div>Genre: {movie.Genre}</div>}
-                  {movie.Plot && movie.Plot !== 'N/A' && <div className="line-clamp-2">{movie.Plot}</div>}
-                </div>
+              <CardContent className="p-2">
+                {movie.Poster && movie.Poster !== 'N/A' ? (
+                  <div className="relative aspect-[2/3]">
+                    <Image
+                      src={movie.Poster}
+                      alt={movie.Title}
+                      fill
+                      className="object-cover rounded-sm"
+                    />
+                  </div>
+                ) : (
+                  <div className="aspect-[2/3] bg-muted flex items-center justify-center rounded-sm">
+                    No Poster
+                  </div>
+                )}
+                <div className="pt-2">
+                  <h3 className="font-medium line-clamp-1">{movie.Title}</h3>
+                  <div className="flex items-center justify-between text-sm text-muted-foreground">
+                    <span>{movie.Year}</span>
+                    {movie.imdbRating && movie.imdbRating !== 'N/A' && (
+                      <div className="flex items-center gap-1">
+                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                        <span>{movie.imdbRating}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    {movie.Released && movie.Released !== 'N/A' && <div>Release: {movie.Released}</div>}
+                    {movie.Genre && movie.Genre !== 'N/A' && <div>Genre: {movie.Genre}</div>}
+                    {movie.Plot && movie.Plot !== 'N/A' && <div className="line-clamp-2">{movie.Plot}</div>}
+                  </div>
                 <Dialog open={dialogOpen === movie.imdbID} onOpenChange={open => {
                   setDialogOpen(open ? movie.imdbID : null)
                   if (open) handleFetchMagnets(movie)
@@ -199,9 +199,9 @@ export function MovieGridDynamic({ genre, year, searchQuery = "popular" }: Movie
                     </DialogClose>
                   </DialogContent>
                 </Dialog>
-              </div>
-            </CardContent>
-          </Card>
+                </div>
+              </CardContent>
+            </Card>
         ))}
       </div>
       
