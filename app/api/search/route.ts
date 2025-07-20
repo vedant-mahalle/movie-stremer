@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { piratebay } from 'piratebay-scraper';
+import fetch from 'node-fetch';
 
 const OMDB_API_KEY = process.env.OMDB_API_KEY;
 if (!OMDB_API_KEY) {
@@ -47,7 +48,7 @@ function cleanTitle(name: string): string {
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const movie = searchParams.get('movie');
+  let movie = searchParams.get('movie');
 
   if (!movie) {
     return NextResponse.json(
@@ -56,70 +57,157 @@ export async function GET(request: Request) {
     );
   }
 
-  try {
-    console.log("Searching for movie:", movie);
-    const results = await piratebay.search(movie);
-    console.log("Search results:", results);
-    
-    if (results && Array.isArray(results) && results.length > 0) {
-      // Get movie info for each unique title
-      const processedResults = await Promise.all(
-        results
-          .filter(result => result && typeof result === 'object' && 'title' in result)
-          .map(async (result) => {
-            try {
-              // Extract likely movie name from torrent name
-              const cleanedTitle = cleanTitle(result.title);
-              console.log("Cleaned title:", cleanedTitle);
-              const movieInfo = await getMovieInfo(cleanedTitle);
-              console.log("Movie info for", cleanedTitle, ":", movieInfo);
-              
-              return {
-                name: result.title || 'Unknown',
-                size: result.size || 'Unknown',
-                seeders: typeof result.seeders === 'number' ? result.seeders : 0,
-                leechers: typeof result.leechers === 'number' ? result.leechers : 0,
-                uploadDate: result.uploaded || 'Unknown',
-                magnet: result.link || '',
-                movieInfo: movieInfo ? {
-                  title: movieInfo.Title || 'Unknown',
-                  year: movieInfo.Year || 'N/A',
-                  poster: movieInfo.Poster || 'N/A',
-                  plot: movieInfo.Plot || 'No plot available',
-                  rating: movieInfo.imdbRating || 'N/A',
-                  genre: movieInfo.Genre || 'Unknown'
-                } : null
-              };
-            } catch (error) {
-              console.error('Error processing result:', error);
-              return null;
-            }
-          })
-      );
+  // Clean up the movie query: remove special characters, asterisks, and extra spaces
+  movie = movie.replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
 
-      // Filter out null results
-      const validResults = processedResults.filter(result => result !== null);
-
-      if (validResults.length === 0) {
-        return NextResponse.json(
-          { error: 'No valid results found' },
-          { status: 404 }
-        );
-      }
-
-      return NextResponse.json({ results: validResults });
-    } else {
-      console.log("No results found");
-      return NextResponse.json(
-        { error: 'No results found' },
-        { status: 404 }
-      );
-    }
-  } catch (err) {
-    console.error("Error fetching results:", err);
+  // Extract year if present
+  const yearMatch = movie.match(/(19|20)\d{2}/);
+  let year = null;
+  if (yearMatch) {
+    year = parseInt(yearMatch[0], 10);
+  }
+  // If the year is in the future, return a user-friendly message
+  const currentYear = new Date().getFullYear();
+  if (year && year > currentYear) {
     return NextResponse.json(
-      { error: 'Server error' },
-      { status: 500 }
+      { error: 'No torrents available for unreleased movies. Try searching for a released movie.' },
+      { status: 404 }
     );
   }
+
+  let validResults = [];
+  let piratebayError = null;
+  let triedPatterns = false;
+  try {
+    // TV show pattern fallback
+    const tvShowMatch = movie.match(/(.+?)\sS(\d{2})E(\d{2})/i);
+    if (tvShowMatch) {
+      triedPatterns = true;
+      const showTitle = tvShowMatch[1].trim();
+      const season = tvShowMatch[2];
+      const episode = tvShowMatch[3];
+      const patterns = [
+        `${showTitle} S${season}E${episode}`,
+        `${showTitle.replace(/\s+/g, '.')} S${season}E${episode}`,
+        `${showTitle} ${season}x${episode}`,
+        `${showTitle} Season ${parseInt(season, 10)} Episode ${parseInt(episode, 10)}`,
+        `${showTitle} ${season}${episode}`,
+        `${showTitle} S${season}` // fallback to season only
+      ];
+      for (const pattern of patterns) {
+        const results = await piratebay.search(pattern);
+        if (results && Array.isArray(results) && results.length > 0) {
+          const processedResults = await Promise.all(
+            results
+              .filter(result => result && typeof result === 'object' && 'title' in result)
+              .map(async (result) => {
+                try {
+                  const cleanedTitle = cleanTitle(result.title);
+                  const movieInfo = await getMovieInfo(cleanedTitle);
+                  return {
+                    name: result.title || 'Unknown',
+                    size: result.size || 'Unknown',
+                    seeders: Number(result.seeders) || 0,
+                    leechers: Number(result.leechers) || 0,
+                    uploadDate: result.uploaded || 'Unknown',
+                    magnet: result.link || '',
+                    movieInfo: movieInfo ? {
+                      title: movieInfo.Title || 'Unknown',
+                      year: movieInfo.Year || 'N/A',
+                      poster: movieInfo.Poster || 'N/A',
+                      plot: movieInfo.Plot || 'No plot available',
+                      rating: movieInfo.imdbRating || 'N/A',
+                      genre: movieInfo.Genre || 'Unknown'
+                    } : null
+                  };
+                } catch (error) {
+                  return null;
+                }
+              })
+          );
+          validResults = processedResults.filter(result => result !== null);
+          if (validResults.length > 0) break;
+        }
+      }
+    }
+    if (!triedPatterns) {
+      const results = await piratebay.search(movie);
+      if (results && Array.isArray(results) && results.length > 0) {
+        const processedResults = await Promise.all(
+          results
+            .filter(result => result && typeof result === 'object' && 'title' in result)
+            .map(async (result) => {
+              try {
+                const cleanedTitle = cleanTitle(result.title);
+                const movieInfo = await getMovieInfo(cleanedTitle);
+                return {
+                  name: result.title || 'Unknown',
+                  size: result.size || 'Unknown',
+                  seeders: Number(result.seeders) || 0,
+                  leechers: Number(result.leechers) || 0,
+                  uploadDate: result.uploaded || 'Unknown',
+                  magnet: result.link || '',
+                  movieInfo: movieInfo ? {
+                    title: movieInfo.Title || 'Unknown',
+                    year: movieInfo.Year || 'N/A',
+                    poster: movieInfo.Poster || 'N/A',
+                    plot: movieInfo.Plot || 'No plot available',
+                    rating: movieInfo.imdbRating || 'N/A',
+                    genre: movieInfo.Genre || 'Unknown'
+                  } : null
+                };
+              } catch (error) {
+                return null;
+              }
+            })
+        );
+        validResults = processedResults.filter(result => result !== null);
+      }
+    }
+  } catch (err) {
+    piratebayError = err;
+  }
+
+  // Fallback to YTS if no results from Piratebay
+  if (validResults.length === 0 && year) {
+    try {
+      const ytsRes = await fetch(`https://yts.mx/api/v2/list_movies.json?query_term=${encodeURIComponent(movie)}&year=${year}`);
+      const ytsData = await ytsRes.json();
+      if (ytsData && ytsData.data && ytsData.data.movies && ytsData.data.movies.length > 0) {
+        const ytsResults = ytsData.data.movies.flatMap((m: any) =>
+          (m.torrents || []).map((t: any) => ({
+            name: `${m.title} [YTS] ${t.quality} ${t.type}`,
+            size: t.size,
+            seeders: Number(t.seeds) || 0,
+            leechers: Number(t.peers) || 0,
+            uploadDate: t.date_uploaded,
+            magnet: t.url || '',
+            movieInfo: {
+              title: m.title,
+              year: m.year,
+              poster: m.medium_cover_image,
+              plot: m.summary,
+              rating: m.rating,
+              genre: (m.genres || []).join(', ')
+            }
+          }))
+        );
+        validResults = [...validResults, ...ytsResults];
+      }
+    } catch (err) {
+      // ignore YTS error
+    }
+  }
+
+  // Deduplicate by magnet link
+  validResults = validResults.filter((r, i, arr) => r.magnet && arr.findIndex(x => x.magnet === r.magnet) === i);
+
+  if (validResults.length === 0) {
+    return NextResponse.json(
+      { error: 'No results found. Try a different or simpler search term.' },
+      { status: 404 }
+    );
+  }
+
+  return NextResponse.json({ results: validResults });
 } 

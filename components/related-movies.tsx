@@ -42,9 +42,8 @@ export function RelatedMovies({ genre, year }: RelatedMoviesProps) {
       <h2 className="text-2xl font-bold">Related Movies</h2>
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
         {movies.slice(0, 6).map((movie) => (
-          <Link key={movie.imdbID} href={`/movie/${movie.imdbID}`}>
-            <Card className="hover:scale-105 transition-transform">
-              <CardContent className="p-2">
+          <Card key={movie.imdbID} className="hover:scale-105 transition-transform cursor-pointer" onClick={() => window.location.href = `/movie/${movie.imdbID}`}>
+            <CardContent className="p-2">
                 {movie.Poster && movie.Poster !== 'N/A' ? (
                   <div className="relative aspect-[2/3]">
                     <Image
@@ -73,7 +72,6 @@ export function RelatedMovies({ genre, year }: RelatedMoviesProps) {
                 </div>
               </CardContent>
             </Card>
-          </Link>
         ))}
       </div>
     </div>

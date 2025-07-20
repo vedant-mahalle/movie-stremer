@@ -269,17 +269,17 @@ export default function StreamPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content (YouTube style) */}
           <div className="lg:col-span-2 flex flex-col gap-6">
-            {/* Video Player */}
+          {/* Video Player */}
             <div className="w-full aspect-video bg-black rounded-xl overflow-hidden shadow-xl flex items-center justify-center">
-              <video
-                ref={videoRef}
+            <video
+              ref={videoRef}
                 className="w-full h-full object-contain bg-black"
-                controls
-                onTimeUpdate={handleTimeUpdate}
+              controls
+              onTimeUpdate={handleTimeUpdate}
                 key={videoUrl || undefined}
                 style={{ background: 'black' }}
-              />
-            </div>
+            />
+          </div>
             {/* Title and Controls */}
             <div className="flex flex-col gap-2">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
@@ -293,7 +293,7 @@ export default function StreamPage() {
                   {streamStatus && <Badge variant={streamStatus.status === 'ready' ? 'default' : 'secondary'}>{streamStatus.status === 'ready' ? 'Ready' : streamStatus.status}</Badge>}
                 </div>
               </div>
-              {/* Video Controls */}
+          {/* Video Controls */}
               <div className="flex items-center gap-4 mt-2">
                 <Button onClick={togglePlayPause} size="sm">
                   {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
@@ -301,8 +301,8 @@ export default function StreamPage() {
                 <Button onClick={toggleMute} size="sm" variant="outline">
                   {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
                 </Button>
-                <div className="text-sm text-muted-foreground">
-                  {formatTime(currentTime)} / {formatTime(duration)}
+              <div className="text-sm text-muted-foreground">
+                {formatTime(currentTime)} / {formatTime(duration)}
                 </div>
                 <div className="ml-auto">
                   <Button variant="outline" onClick={handleBackToSearch} disabled={backLoading}>

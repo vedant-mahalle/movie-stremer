@@ -113,7 +113,7 @@ export function TVShowGridDynamic({ genre, year, searchQuery = "series" }: TVSho
     <div className="space-y-6">
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
         {shows.map((show) => (
-          <TVShowResultCard key={show.imdbID} show={show} />
+          <TVShowResultCard key={show.imdbID || `${show.Title}-${show.Year}`} show={show} />
         ))}
       </div>
       
