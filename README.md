@@ -22,20 +22,9 @@ StreamFlix is a modern, full-stack streaming platform that lets you discover, se
 
 > _Paste your screenshots below to showcase the app!_
 
-### Home Page
-![Home Page](screenshots/home.png)
+## Working
+https://github.com/user-attachments/assets/d6d9d2f5-0b1a-4b2c-937f-4ac66ea5e723
 
-### Movies Page
-![Movies Page](screenshots/movies.png)
-
-### TV Shows Page
-![TV Shows Page](screenshots/tvshows.png)
-
-### Streaming Player
-![Streaming Player](screenshots/stream.png)
-
-### Search Results
-![Search Results](screenshots/search.png)
 
 ---
 
